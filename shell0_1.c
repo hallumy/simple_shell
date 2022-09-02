@@ -1,9 +1,89 @@
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
+#include "shell.h"
+
+/**
+ * _strlen - Prints the string length
+ * @str: The string to count
+ * return: The count of characters in a string (str)
+ */
+int _strlen(char *str)
+{
+	int i = 0;
+
+	while (str[i])
+		i++;
+	return (i);
+}
+
+/**
+ * print - writes a character buffer to specified file stream
+ * @format: This is the buffer to be written
+ * @fd: Specifies the file stream where format is written
+ * return: number of bytes written or -1 on error
+ */
+
+int print(char *format, int fd)
+{
+	return (write(fd, format, _strlen(format)));
+}
+
+/**
+ * input_tokenizer - Separate commands and their arguments
+ * @str: Commandline with optional arguments
+ * @delim: Character used to separate the words
+ * return: Nothing
+ */
+
+char **input_tokenizer(char *str, char *delim)
+{
+	int count = 1, i = 0, j = 0;
+	char *token = NULL;
+	char *temp = NULL;
+	char *ptr = NULL;
+	char **argv = NULL;
+
+	ptr = _strdup(str);
+	if (ptr == NULL)
+	{
+		print("_strDup failed to allocate memory", STDOUT_FILENO);
+		exit(1);
+	}
+	token = strtok(ptr, delim);
+	while (token)
+	{
+		token = strtok(NULL, delim);
+		count++;
+	}
+	argv = malloc(sizeof(&i) * count);
+	if (argv == NULL)
+	{
+		print("There is an error", STDOUT_FILENO);
+		exit(1);
+	}
+	token = strtok(str, delim);
+	while (token)
+	{
+		temp = malloc(sizeof(*temp) * _strlen(token));
+		if (temp == NULL)
+		{
+			free(argv);
+			print("There is an error", STDOUT_FILENO);
+			exit(1);
+		}
+		i = 0;
+		while (token[i])
+		{
+			temp[i] = token[i];
+			i++;
+		}
+		argv[j] = temp;
+		j++;
+		token = strtok(NULL, delim);
+	}
+	argv[j] = NULL;
+	free(ptr);
+	return(argv);
+}
+
 /**
  * main - entry point to our shell program
  *
@@ -14,32 +94,44 @@ int main(void)
 	ssize_t read = 0;
 	char *lineptr = NULL;
 	size_t n = 0;
+	char delim1[1] = " ";
 	char delim[1] = "\n";
-	char *token;
-	char **argv;
+	char *token = NULL;
+	char **argv = NULL;
 	extern char **environ;
 	pid_t child_pid;
-	int wstatus;
+	int wstatus, i = 0;
 
 	while (read != -1)
 	{
-		printf("($) ");
+		print("($) ", STDOUT_FILENO);
 		read = getline(&lineptr, &n, stdin);
+		if (read == -1)
+		{
+			break;
+		}
 		token = strtok(lineptr, delim);
-		/* argv = malloc(sizeof(token) * _strlen(token)); */
+		argv = input_tokenizer(token, delim1);
 		child_pid = fork();
 		if (child_pid == 0)
 		{
 			if (execve(argv[0], argv, environ) == -1)
 			{
-				perror("Error:");
+				perror("Error");
 			}
 		}
 		else
 		{
 			wait(&wstatus);
 		}
-	}
-	free(lineptr);
+		 while (argv[i])
+        	{	
+               		free(argv[i]);
+                	i++;
+        	}
+                free(argv);
+                free(lineptr);
+        }
+
 	return (0);
 }
