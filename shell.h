@@ -9,6 +9,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+extern char **environ;
 
 char **input_tokenizer(char *str, char *delim);
 int print(char *format, int fd);
