@@ -7,7 +7,10 @@
 int _strlen(char *str)
 {
 	int i = 0;
-
+	if (str == NULL)
+	{
+		return (-1);
+	}
 	while (str[i])
 		i++;
 	return (i);
@@ -75,7 +78,7 @@ char **input_tokenizer(char *str, char *delim)
  *
  * Return: Always (0) on success
  */
-int main(void)
+int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
 {
 	ssize_t read = 0;
 	char *lineptr = NULL;
