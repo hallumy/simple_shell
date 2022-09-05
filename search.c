@@ -34,20 +34,3 @@ int search(char *filename, char *dirname)
 	}
 	return (-1);
 }
-int main(void)
-{
-	char *name = "recursion1";
-	char *dir = "/home/hallumy/hallumy";
-	int found;
-
-	found = search(name, dir);
-	if (found == 0)
-	{
-		printf("found\n");
-	}
-	else
-	{
-		printf("not found\n");
-	}
-	return (0);
-}
