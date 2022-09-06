@@ -16,6 +16,7 @@ int search(char *filename, char *dirname)
 	dirp = opendir(dirname);
 	if (dirp == NULL)
 	{
+/*		printf("search2\n");*/
 		perror("Error");
 		return (-1);
 	}
@@ -29,6 +30,7 @@ int search(char *filename, char *dirname)
 	}
 	if (errno != 0)
 	{
+	/*	printf("search1\n");*/
 		perror("Error");
 		return (-1);
 	}
