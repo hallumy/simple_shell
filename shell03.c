@@ -127,12 +127,11 @@ int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
 	char *lineptr = NULL, *token = NULL, **argv = NULL;
 	size_t n = 0;
 	pid_t child_pid;
-	int wstatus, i = 0, found;
-	node *head_path = NULL, **head_node = NULL;
-
-	_path_to_list(&head_path);
+	int wstatus, i = 0/*, found*/;
+	node *head_path = NULL/*, **head_node = NULL*/;
+/*	_path_to_list(&head_path);
 	head_path = head_path->next;
-	head_node = &head_path;
+	head_node = &head_path;*/
 	
 	while (read != -1)
 	{
@@ -142,32 +141,28 @@ int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
 			break;
 		token = strtok(lineptr, "\n");
 		argv = input_tokenizer(token, " ");
-	/*	_path_to_list(&head_path);
-		head_path = head_path->next;
-		while (head_path->next)
-	        {
-        	        printf("dir is %s\n", head_path->dirname);
-                	head_path = head_path->next;
-        	}
+		_path_to_list(&head_path);
+/*		printf("head path is %s", head_path->dirname);*/
+/*		head_path = head_path->next;*/
 
-		head_node = &head_path;*/
+	/*	head_node = &head_path;*/
 		child_pid = fork();
 		if (child_pid == 0)
 		{
 			if (execve(argv[0], argv, environ) == -1)
 			{
-		/*		printf("found 3 is %d, headpath is %s\n", found, head_path->dirname);*/
+			/*	printf("found 3 is %d, headpath is %s\n", found, head_path->dirname);
 				found = path_finder(argv[0], &head_path);
-			/*	printf("found 2 is %d, headpath is %s\n", found, head_path->dirname);*/
+				printf("found 2 is %d, headpath is %s\n", found, head_path->dirname);
 				if (found != 0)
 				{
-			/*		printf("1, found %d\n", found);*/
+					printf("1, found %d\n", found);
 					perror("Error");
 				}
 				else
 				{
 					path_handler(argv, &head_path, head_node);
-				}
+				}*/
 			}
 		}
 		else
@@ -179,10 +174,9 @@ int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
 				free(argv[i++]);
 			}
 			free(argv);
-			free_pathlist(head_node);
-			free(lineptr);
+		/*	free_pathlist(head_node);*/
+			free_list(1, lineptr);
 		}
 	}
-/*	free_pathlist(head_node);*/
 	return (0);
 }

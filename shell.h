@@ -34,4 +34,6 @@ int search(char *filename, char *dirname);
 void _path_to_list(node **);
 void path_handler(char **argv, node **head_path, node **head_node);
 void free_pathlist(node **head);
+void free_list(int n, ...);
+
 #endif

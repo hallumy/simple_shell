@@ -10,7 +10,7 @@ void _path_to_list(node **head)
 {
 	int i = 0;
 	char *token = NULL, *dir = NULL, *temp = NULL;
-	node *new = NULL, *current = NULL;
+	node/* *new = NULL, *current = NULL,*/ *first = NULL;
 
 	while (environ[i])
 	{
@@ -23,8 +23,8 @@ void _path_to_list(node **head)
 		}
 		i++;
 	}
-	*head = malloc(sizeof(node));
-	if (*head == NULL)
+	first = malloc(sizeof(node));
+	if (first == NULL)
 	{
 /*		printf("path 1\n");*/
 		perror("Error");
@@ -33,10 +33,10 @@ void _path_to_list(node **head)
 /*	printf("token is %s\n", token);*/
 	dir = strtok(token, ":");
 /*	printf("dir before assigning %s\n", dir);*/
-	(*head)->dirname = dir;
+	first->dirname = dir;
 /*	dir = strtok(token, ":");*/
-	(*head)->next = NULL;
-	current = *head;
+	first->next = NULL;
+/*	current = first;
 	while (dir)
 	{
 		while (current->next)
@@ -44,14 +44,25 @@ void _path_to_list(node **head)
 		new = malloc(sizeof(node));
 		if (new == NULL)
 		{
-/*			printf("path 2\n");*/
+			printf("path 2\n");
 			perror("Error");
 			exit(1);
 		}
 		dir = strtok(NULL, ":");
+		if (dir == NULL)
+		{
+			free(new);
+			break;
+		}
 		new->dirname = dir;
 		new->next = NULL;
 		current->next = new;
+	}*/
+	*head = first;
+	while (*head)
+	{
+		printf("dirname is %s\n", (*head)->dirname);
+		*head = (*head)->next;
 	}
 	free(temp);
 }
@@ -99,3 +110,24 @@ void free_pathlist(node **head)
 	free(*head);
 	*head = NULL;
 }
+/**
+ * free_list - will free an n amount of pointers to a string
+ * @n: The number of pointers to free
+ */
+void free_list(int n, ...)
+{
+	int i;
+	char *ptr;
+	va_list list;
+
+	va_start(list, n);
+	for (i = 0; i < n; i++)
+	{
+		ptr = va_arg(list, char *);
+		if (ptr == NULL)
+			ptr = "(nil)";
+		free(ptr);
+	}
+	va_end(list);
+}
+
