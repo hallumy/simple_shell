@@ -31,9 +31,9 @@ int _strlen(char *str);
 char *_strdup(char *str);
 int path_finder(char *file, node **head);
 int search(char *filename, char *dirname);
-void _path_to_list(node **);
-void path_handler(char **argv, node **head_path, node **head_node);
-void free_pathlist(node **head);
+char *_path_to_list(node **);
+void path_handler(char **argv, node **head_path);
+void free_pathlist(node **, char *);
 void free_list(int n, ...);
 
 #endif

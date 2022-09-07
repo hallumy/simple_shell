@@ -5,7 +5,7 @@
  * @head_path: address of the linked list containing path directories
  * Return: Nothing
  */
-void path_handler(char **argv, node **head_path, node **head_node)
+void path_handler(char **argv, node **head_path)
 {
 	char *list = NULL;
 	int i = 0, j = 0, wstatus;
@@ -30,21 +30,13 @@ void path_handler(char **argv, node **head_path, node **head_node)
 	{
 		if (execve(argv[0], argv, environ) == -1)
 		{
-		/*	printf("2\n");*/
 			perror("Error");
 		}
 	}
 	else
 	{
 		wait(&wstatus);
-	/*	printf("We are now freeing path handler\n");*/
-		while (argv[i])
-		{
-			free(argv[i++]);
-		}
-		free(argv);
 		free(list);
-		free_pathlist(head_node);
 	}
 }
 
@@ -124,59 +116,53 @@ char **input_tokenizer(char *str, char *delim)
 int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
 {
 	ssize_t read = 0;
-	char *lineptr = NULL, *token = NULL, **argv = NULL;
+	char *lineptr = NULL, *token = NULL, **argv = NULL, *temp = NULL;
 	size_t n = 0;
 	pid_t child_pid;
-	int wstatus, i = 0/*, found*/;
-	node *head_path = NULL/*, **head_node = NULL*/;
-/*	_path_to_list(&head_path);
-	head_path = head_path->next;
-	head_node = &head_path;*/
+	int wstatus, i = 0, found;
+	node *head_path = NULL, **head_node = NULL;
 	
 	while (read != -1)
-	{
+	{	
 		print("($) ", STDOUT_FILENO);
 		read = getline(&lineptr, &n, stdin);
 		if (read == -1)
 			break;
 		token = strtok(lineptr, "\n");
 		argv = input_tokenizer(token, " ");
-		_path_to_list(&head_path);
-/*		printf("head path is %s", head_path->dirname);*/
-/*		head_path = head_path->next;*/
-
-	/*	head_node = &head_path;*/
+		temp = _path_to_list(&head_path);
+		head_node = &head_path;
 		child_pid = fork();
 		if (child_pid == 0)
 		{
 			if (execve(argv[0], argv, environ) == -1)
 			{
-			/*	printf("found 3 is %d, headpath is %s\n", found, head_path->dirname);
 				found = path_finder(argv[0], &head_path);
-				printf("found 2 is %d, headpath is %s\n", found, head_path->dirname);
 				if (found != 0)
 				{
-					printf("1, found %d\n", found);
 					perror("Error");
 				}
 				else
 				{
-					path_handler(argv, &head_path, head_node);
-				}*/
+					path_handler(argv, &head_path);
+				}
 			}
 		}
 		else
 		{
 			wait(&wstatus);
-	/*		printf("we ar now freeing argv\n");*/
-			while (argv[i])
+			i = 0;
+			while (argv[i] != NULL)
 			{
-				free(argv[i++]);
+				if (argv[i])
+					free(argv[i++]);
 			}
-			free(argv);
-		/*	free_pathlist(head_node);*/
-			free_list(1, lineptr);
+			if (argv)
+				free(argv);
+			free_pathlist(head_node, temp);
 		}
 	}
+	if (lineptr)
+		free(lineptr);
 	return (0);
 }
