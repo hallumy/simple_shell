@@ -5,6 +5,20 @@
  * @fd: Specifies the file stream where format is written
  * Return: number of bytes written or -1 on error
  */
+void sig_handler(int signum)
+{
+	if (signum == SIGINT)
+	{
+		print("\n",STDIN_FILENO);
+	}
+}
+
+/**
+ * print - writes a character buffer to specified file stream
+ * @format: This is the buffer to be written
+ * @fd: Specifies the file stream where format is written
+ * Return: number of bytes written or -1 on error
+ */
 int print(char *format, int fd)
 {
 	return (write(fd, format, _strlen(format)));
@@ -16,18 +30,18 @@ int print(char *format, int fd)
  * @delim: Character used to separate the words
  * Return: Nothing
  */
-char **input_tokenizer(char *str, char *delim)
+char **input_tokenizer(char *str)
 {
 	int count = 1, j = 0;
 	char *token = NULL;
 	char *ptr = NULL;
 	char **argv = NULL;
 
-	ptr = _strdup(str);
-	token = strtok(ptr, delim);
+	ptr = strdup(str);
+	token = strtok(ptr, " ");
 	while (token)
 	{
-		token = strtok(NULL, delim);
+		token = strtok(NULL, " ");
 		count++;
 	}
 	argv = malloc(sizeof(*argv) * count);
@@ -36,12 +50,13 @@ char **input_tokenizer(char *str, char *delim)
 		print("There is an error", STDOUT_FILENO);
 		exit(1);
 	}
-	token = strtok(str, delim);
+	token = strtok(str, " ");
 	while (token)
 	{
+		argv[j] = NULL;
 		argv[j] = _strdup(token);
 		j++;
-		token = strtok(NULL, delim);
+		token = strtok(NULL, " ");
 	}
 	argv[j] = NULL;
 	free(ptr);
@@ -54,24 +69,25 @@ char **input_tokenizer(char *str, char *delim)
  * @av: argument vector
  * Return: Always (0) on success
  */
-int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
+int main(int ac, char **av)
 {
 	ssize_t read = 0;
-	char *lineptr = NULL, *token = NULL, **argv = NULL, *temp = NULL;
+	char *lineptr = NULL, **argv = NULL, *token = NULL, *temp = NULL;
 	size_t n = 0;
 	node *head_path = NULL, **head_node = NULL;
 
 	while (1)
 	{
+		signal(SIGINT,sig_handler);
 		print("", STDOUT_FILENO);
 		read = getline(&lineptr, &n, stdin);
 		if (read == -1)
 			break;
 		token = strtok(lineptr, "\n");
-		argv = input_tokenizer(token, " ");
-		check_builtins(argv[0], lineptr);
-		temp = _path_to_list(&head_path);
-		head_node = &head_path;
+		argv = input_tokenizer(token);
+		/*check_builtins(argv[0], lineptr);*/
+		/*temp = _path_to_list(&head_path);*/
+		/*head_node = &head_path;*/
 		process_handler(argv, head_path, head_node, temp);
 	}
 	if (lineptr)
@@ -89,7 +105,7 @@ int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
 void process_handler(char **argv, node *head_path,
 		     node **head_node, char *temp)
 {
-	int i, wstatus, found;
+	int i = 0, wstatus = 0, found = 1;
 	pid_t child_pid;
 
 	child_pid = fork();
@@ -121,5 +137,36 @@ void process_handler(char **argv, node *head_path,
 		if (argv)
 			free(argv);
 		free_pathlist(head_node, temp);
+	}
+}
+/**
+ * non_interactive - Handles shell in non interactive
+ * @av: Argument vector for execve
+ * Return: Nothing
+ */
+void non_interactive(char **av)
+{
+	int wstatus, i = 0;
+	pid_t child_pid;
+
+	child_pid = fork();
+	if (child_pid == 0)
+	{
+		if(execve(av[0], av, environ) == -1)
+		{
+			perror("Error");
+		}
+	}
+	else
+	{
+		wait(&wstatus);
+		i = 0;
+		while (av[i] != NULL)
+		{
+			if (av[i])
+				free(av[i++]);
+		}
+		if (av)
+			free(av);
 	}
 }

@@ -1,4 +1,5 @@
 #include "shell.h"
+
 /**
  * _path_to_list - Builds a linked list of path directories
  * @head: head of the newly built linked list
@@ -82,7 +83,7 @@ node *new_node(char *dir)
  */
 int path_finder(char *file, node **head)
 {
-	int found = 1;
+	int found;
 
 	while ((*head)->next)
 	{

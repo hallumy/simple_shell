@@ -10,6 +10,7 @@ char *_strdup(char *str)
 {
 	int i, size;
 	char *str1;
+	size_t n = 0;
 
 	if (str == NULL)
 	{
@@ -19,12 +20,14 @@ char *_strdup(char *str)
 	{
 		size = strlen(str);
 		str1 = malloc((sizeof(*str) * size) + 256);
+		n = size + 256;
 		if (str1 == NULL)
 		{
 			return (NULL);
 		}
 		else
 		{
+			memset(str1, 0,n);
 			for (i = 0; i < size; i++)
 			{
 				str1[i] = str[i];
@@ -34,21 +37,27 @@ char *_strdup(char *str)
 	return (str1);
 }
 /**
- * _strlen - Prints the string length
- * @str: The string to count
- * Return: The count of characters in a string (str)
+ * _strlen - function that returns the length of a string
+ *
+ * @s: string whose length is returned
+ *
+ * Return: int length of string s
  */
-int _strlen(char *str)
+int _strlen(char *s)
 {
-	int i = 0;
+	int len = 0;
+	char cha;
+	int count = 1;
 
-	if (str == NULL)
+	cha = *s;
+	while (cha != '\0')
 	{
-		return (-1);
+		len++;
+		cha = *(s + count);
+		count++;
 	}
-	while (str[i])
-		i++;
-	return (i);
+
+	return (len);
 }
 /**
  * _strcmp - function that compares two strings
@@ -79,6 +88,5 @@ int _strcmp(char *s1, char *s2)
 			break;
 		}
 	}
-
 	return (comp);
 }

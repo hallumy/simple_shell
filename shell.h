@@ -36,7 +36,7 @@ typedef struct builtin
 extern char **environ;
 
 node *new_node(char *);
-char **input_tokenizer(char *str, char *delim);
+char **input_tokenizer(char *str);
 int print(char *format, int fd);
 int _strlen(char *str);
 char *_strdup(char *str);
@@ -50,4 +50,5 @@ void process_handler(char **argv, node *head_path, node **head_node, char *);
 void check_builtins(char *str, char *);
 void exits(char *);
 int _strcmp(char *s1, char *s2);
+void non_interactive(char **av);
 #endif
