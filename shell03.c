@@ -63,7 +63,7 @@ int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
 
 	while (1)
 	{
-		print("($) ", STDOUT_FILENO);
+		print("", STDOUT_FILENO);
 		read = getline(&lineptr, &n, stdin);
 		if (read == -1)
 			break;
