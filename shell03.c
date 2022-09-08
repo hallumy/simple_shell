@@ -20,7 +20,6 @@ char **input_tokenizer(char *str, char *delim)
 {
 	int count = 1, j = 0;
 	char *token = NULL;
-	char *temp = NULL;
 	char *ptr = NULL;
 	char **argv = NULL;
 
@@ -40,13 +39,6 @@ char **input_tokenizer(char *str, char *delim)
 	token = strtok(str, delim);
 	while (token)
 	{
-		temp = malloc(sizeof(*temp) * _strlen(token));
-		if (temp == NULL)
-		{
-			free(argv);
-			print("There is an error", STDOUT_FILENO);
-			exit(1);
-		}
 		argv[j] = _strdup(token);
 		j++;
 		token = strtok(NULL, delim);
@@ -58,48 +50,76 @@ char **input_tokenizer(char *str, char *delim)
 
 /**
  * main - entry point to our shell program
- *
+ * @ac: argument counter
+ * @av: argument vector
  * Return: Always (0) on success
  */
-int main(void)
+int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
 {
 	ssize_t read = 0;
-	char *lineptr = NULL;
+	char *lineptr = NULL, *token = NULL, **argv = NULL, *temp = NULL;
 	size_t n = 0;
-	char delim1[1] = " ";
-	char delim[1] = "\n";
-	char *token = NULL;
-	char **argv = NULL;
-	pid_t child_pid;
-	int wstatus, i = 0;
+	node *head_path = NULL, **head_node = NULL;
 
-	while (read != -1)
+	while (1)
 	{
 		print("($) ", STDOUT_FILENO);
 		read = getline(&lineptr, &n, stdin);
 		if (read == -1)
 			break;
-		token = strtok(lineptr, delim);
-		argv = input_tokenizer(token, delim1);
-		child_pid = fork();
-		if (child_pid == 0)
+		token = strtok(lineptr, "\n");
+		argv = input_tokenizer(token, " ");
+		check_builtins(argv[0], lineptr);
+		temp = _path_to_list(&head_path);
+		head_node = &head_path;
+		process_handler(argv, head_path, head_node, temp);
+	}
+	if (lineptr)
+		free(lineptr);
+	return (0);
+}
+/**
+ * process_handler - Handles processes in the shell
+ * @argv: Argument vector for execve
+ * @head_path: linked list containing PATH directories
+ * @head_node: address of head_path head node
+ * @temp: address to free in linked list built
+ * Return: Nothing
+ */
+void process_handler(char **argv, node *head_path,
+		     node **head_node, char *temp)
+{
+	int i, wstatus, found;
+	pid_t child_pid;
+
+	child_pid = fork();
+	if (child_pid == 0)
+	{
+		if (execve(argv[0], argv, environ) == -1)
 		{
-			if (execve(argv[0], argv, environ) == -1)
+			found = path_finder(argv[0], &head_path);
+			if (found != 0)
 			{
 				perror("Error");
 			}
+			else
+			{
+				path_handler(argv, &head_path);
+				exit(0);
+			}
 		}
-		else
-		{
-			wait(&wstatus);
-		}
-		while (argv[i])
-		{
-			free(argv[i]);
-			i++;
-		}
-		free(argv);
-		free(lineptr);
 	}
-	return (0);
+	else
+	{
+		wait(&wstatus);
+		i = 0;
+		while (argv[i] != NULL)
+		{
+			if (argv[i])
+				free(argv[i++]);
+		}
+		if (argv)
+			free(argv);
+		free_pathlist(head_node, temp);
+	}
 }
