@@ -1,19 +1,5 @@
 #include "shell.h"
 /**
- * _strlen - Prints the string length
- * @str: The string to count
- * Return: The count of characters in a string (str)
- */
-int _strlen(char *str)
-{
-	int i = 0;
-
-	while (str[i])
-		i++;
-	return (i);
-}
-
-/**
  * print - writes a character buffer to specified file stream
  * @format: This is the buffer to be written
  * @fd: Specifies the file stream where format is written
