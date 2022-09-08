@@ -21,7 +21,7 @@ typedef struct node
 {
 	char *dirname;
 	struct node *next;
-}node;
+} node;
 
 /**
  * struct builtin - Structure containing builtin function definitions
@@ -32,7 +32,7 @@ typedef struct builtin
 {
 	char *name;
 	void (*func)(char *);
-}builtin;
+} builtin;
 extern char **environ;
 
 node *new_node(char *);
