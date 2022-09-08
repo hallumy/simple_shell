@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <errno.h>
-
+#include <signal.h>
 /**
  * struct node - Node for a linked list
  * @dirname: name of PATH entry
@@ -23,8 +23,19 @@ typedef struct node
 	struct node *next;
 }node;
 
+/**
+ * struct builtin - Structure containing builtin function definitions
+ * @name: The name of the builtin function
+ * @func: Pointer to the builtin function
+ */
+typedef struct builtin
+{
+	char *name;
+	void (*func)(char *);
+}builtin;
 extern char **environ;
 
+node *new_node(char *);
 char **input_tokenizer(char *str, char *delim);
 int print(char *format, int fd);
 int _strlen(char *str);
@@ -35,5 +46,8 @@ char *_path_to_list(node **);
 void path_handler(char **argv, node **head_path);
 void free_pathlist(node **, char *);
 void free_list(int n, ...);
-
+void process_handler(char **argv, node *head_path, node **head_node, char *);
+void check_builtins(char *str, char *);
+void exits(char *);
+int _strcmp(char *s1, char *s2);
 #endif

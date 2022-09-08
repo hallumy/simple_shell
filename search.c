@@ -11,7 +11,7 @@ int search(char *filename, char *dirname)
 {
 	DIR *dirp;
 	struct dirent *ptr;
-	
+
 	errno = 0;
 	dirp = opendir(dirname);
 	if (dirp == NULL)
@@ -23,7 +23,7 @@ int search(char *filename, char *dirname)
 	{
 		if (ptr->d_type == DT_REG)
 		{
-			if (strcmp(filename, ptr->d_name) == 0)
+			if (_strcmp(filename, ptr->d_name) == 0)
 				return (0);
 		}
 	}

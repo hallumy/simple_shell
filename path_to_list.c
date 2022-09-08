@@ -2,7 +2,7 @@
 
 /**
  * _path_to_list - Builds a linked list of path directories
- * 
+ * @head: head of the newly built linked list
  * Return: node pointer
  */
 
@@ -14,13 +14,14 @@ char *_path_to_list(node **head)
 
 	while (environ[i])
 	{
-		temp = strdup(environ[i]);
-		if (strcmp((token) = strtok(temp, "="), "PATH") != 0)
+		temp = _strdup(environ[i]);
+		token = strtok(temp, "=");
+		if (_strcmp(token, "PATH") != 0)
 		{
 			free(temp);
 			i++;
 		}
-		if (strcmp(token, "PATH") == 0)
+		if (_strcmp(token, "PATH") == 0)
 		{
 			token = strtok(NULL, "=");
 			break;
@@ -40,26 +41,39 @@ char *_path_to_list(node **head)
 	{
 		while (current->next)
 			current = current->next;
-		new = malloc(sizeof(node));
+		new = new_node(dir);
 		if (new == NULL)
-		{
-			perror("Error");
-			exit(1);
-		}
-		dir = strtok(NULL, ":");
-		if (dir == NULL)
-		{
-			free(new);
 			break;
-		}
-		new->dirname = dir;
-		new->next = NULL;
 		current->next = new;
 	}
 	*head = first;
 	return (temp);
 }
-	
+/**
+ * new_node - create a new node
+ * @dir: name of directory
+ * Return: newly created node
+ */
+node *new_node(char *dir)
+{
+	node *new = NULL;
+
+	new = malloc(sizeof(node));
+	if (new == NULL)
+	{
+		perror("Error");
+		exit(1);
+	}
+	dir = strtok(NULL, ":");
+	if (dir == NULL)
+	{
+		free(new);
+		return (NULL);
+	}
+	new->dirname = dir;
+	new->next = NULL;
+	return (new);
+}
 
 /**
  * path_finder - Searches for a file in the PATH directories
@@ -85,6 +99,7 @@ int path_finder(char *file, node **head)
 /**
  * free_pathlist - frees the linked list containing PATH directories
  * @head: Address to the head of this list
+ * @tmp: A pointer to be freed
  * Return: Nothing
  */
 void free_pathlist(node **head, char *tmp)
@@ -103,26 +118,43 @@ void free_pathlist(node **head, char *tmp)
 	*head = NULL;
 	free(tmp);
 }
-
-
 /**
- * free_list - will free an n amount of pointers to a string
- * @n: The number of pointers to free
+ * path_handler - Executes commands in PATH
+ * @argv: argument vector passed to execve
+ * @head_path: address of the linked list containing path directories
+ * Return: Nothing
  */
-void free_list(int n, ...)
+void path_handler(char **argv, node **head_path)
 {
-	int i;
-	char *ptr;
-	va_list list;
+	char *list = NULL;
+	int i = 0, j = 0, wstatus;
+	pid_t path_pid;
 
-	va_start(list, n);
-	for (i = 0; i < n; i++)
+	list = _strdup(argv[0]);
+	while ((*head_path)->dirname[i])
 	{
-		ptr = va_arg(list, char *);
-		if (ptr == NULL)
-			ptr = "(nil)";
-		free(ptr);
-	}
-	va_end(list);
-}
+		argv[0][i] = (*head_path)->dirname[i];
+		i++;
 
+	}
+		argv[0][i++] = '/';
+	while (list[j])
+	{
+		argv[0][i] = list[j];
+		i++;
+		j++;
+	}
+	path_pid = fork();
+	if (path_pid == 0)
+	{
+		if (execve(argv[0], argv, environ) == -1)
+		{
+			perror("Error");
+		}
+	}
+	else
+	{
+		wait(&wstatus);
+		free(list);
+	}
+}

@@ -1,64 +1,5 @@
 #include "shell.h"
 /**
- * path_handler - Executes commands in PATH
- * @argv: argument vector passed to execve
- * @head_path: address of the linked list containing path directories
- * Return: Nothing
- */
-void path_handler(char **argv, node **head_path)
-{
-	char *list = NULL;
-	int i = 0, j = 0, wstatus;
-	pid_t path_pid;
-
-	list = strdup(argv[0]);
-	while ((*head_path)->dirname[i])
-	{
-		argv[0][i] = (*head_path)->dirname[i];
-		i++;
-
-	}
-		argv[0][i++] = '/';
-	while (list[j])
-	{
-		argv[0][i] = list[j];
-		i++;
-		j++;
-	}
-	path_pid = fork();
-	if (path_pid == 0)
-	{
-		if (execve(argv[0], argv, environ) == -1)
-		{
-			perror("Error");
-		}
-	}
-	else
-	{
-		wait(&wstatus);
-		free(list);
-	}
-}
-
-/**
- * _strlen - Prints the string length
- * @str: The string to count
- * Return: The count of characters in a string (str)
- */
-int _strlen(char *str)
-{
-	int i = 0;
-
-	if (str == NULL)
-	{
-		return (-1);
-	}
-	while (str[i])
-		i++;
-	return (i);
-}
-
-/**
  * print - writes a character buffer to specified file stream
  * @format: This is the buffer to be written
  * @fd: Specifies the file stream where format is written
@@ -82,7 +23,7 @@ char **input_tokenizer(char *str, char *delim)
 	char *ptr = NULL;
 	char **argv = NULL;
 
-	ptr = strdup(str);
+	ptr = _strdup(str);
 	token = strtok(ptr, delim);
 	while (token)
 	{
@@ -118,51 +59,69 @@ int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
 	ssize_t read = 0;
 	char *lineptr = NULL, *token = NULL, **argv = NULL, *temp = NULL;
 	size_t n = 0;
-	pid_t child_pid;
-	int wstatus, i = 0, found;
 	node *head_path = NULL, **head_node = NULL;
-	
-	while (read != -1)
-	{	
+
+	while (1)
+	{
 		print("($) ", STDOUT_FILENO);
 		read = getline(&lineptr, &n, stdin);
 		if (read == -1)
 			break;
 		token = strtok(lineptr, "\n");
 		argv = input_tokenizer(token, " ");
+		check_builtins(argv[0], lineptr);
 		temp = _path_to_list(&head_path);
 		head_node = &head_path;
-		child_pid = fork();
-		if (child_pid == 0)
-		{
-			if (execve(argv[0], argv, environ) == -1)
-			{
-				found = path_finder(argv[0], &head_path);
-				if (found != 0)
-				{
-					perror("Error");
-				}
-				else
-				{
-					path_handler(argv, &head_path);
-				}
-			}
-		}
-		else
-		{
-			wait(&wstatus);
-			i = 0;
-			while (argv[i] != NULL)
-			{
-				if (argv[i])
-					free(argv[i++]);
-			}
-			if (argv)
-				free(argv);
-			free_pathlist(head_node, temp);
-		}
+		process_handler(argv, head_path, head_node, temp);
+		if (lineptr)
+			free(lineptr);
 	}
 	if (lineptr)
 		free(lineptr);
 	return (0);
+}
+/**
+ * process_handler - Handles processes in the shell
+ * @argv: Argument vector for execve
+ * @head_path: linked list containing PATH directories
+ * @head_node: address of head_path head node
+ * @temp: address to free in linked list built
+ * Return: Nothing
+ */
+void process_handler(char **argv, node *head_path,
+		     node **head_node, char *temp)
+{
+	int i, wstatus, found;
+	pid_t child_pid;
+
+	child_pid = fork();
+	if (child_pid == 0)
+	{
+		if (execve(argv[0], argv, environ) == -1)
+		{
+			found = path_finder(argv[0], &head_path);
+			if (found != 0)
+			{
+				perror("Error");
+			}
+			else
+			{
+				path_handler(argv, &head_path);
+				exit(0);
+			}
+		}
+	}
+	else
+	{
+		wait(&wstatus);
+		i = 0;
+		while (argv[i] != NULL)
+		{
+			if (argv[i])
+				free(argv[i++]);
+		}
+		if (argv)
+			free(argv);
+		free_pathlist(head_node, temp);
+	}
 }
