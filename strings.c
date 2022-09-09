@@ -73,8 +73,8 @@ int _strcmp(char *s1, char *s2)
 	int i, s1_len, s2_len, len;
 	int comp = 0;
 
-	s1_len = _strlen(s1);
-	s2_len = _strlen(s2);
+	s1_len = strlen(s1);
+	s2_len = strlen(s2);
 	len = s1_len;
 	if (s2_len > s1_len)
 		len = s2_len;

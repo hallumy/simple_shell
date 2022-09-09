@@ -37,30 +37,52 @@ char **input_tokenizer(char *str)
 	char *ptr = NULL;
 	char **argv = NULL;
 
-	ptr = _strdup(str);
-	token = strtok(ptr, " ");
-	while (token)
+	while (str[j])
 	{
-		token = strtok(NULL, " ");
-		count++;
-	}
-	argv = malloc(sizeof(*argv) * count);
-	if (argv == NULL)
-	{
-		print("There is an error", STDOUT_FILENO);
-		exit(1);
-	}
-	token = strtok(str, " ");
-	while (token)
-	{
-		argv[j] = NULL;
-		argv[j] = _strdup(token);
+		if (str[j] != ' ')
+			break;
 		j++;
-		token = strtok(NULL, " ");
 	}
-	argv[j] = NULL;
-	free(ptr);
-	return (argv);
+	if (j == _strlen(str))
+	{
+		argv = malloc(sizeof(*argv) * (count + 1));
+		if (argv == NULL)
+		{
+			print("There is an error", STDOUT_FILENO);
+			exit(1);
+		}
+		argv[0] = _strdup(str);
+		argv[1] = NULL;
+		return (argv);
+	}
+	else
+	{
+		ptr = _strdup(str);
+		token = strtok(ptr, " ");
+		while (token)
+		{	
+			token = strtok(NULL, " ");
+			count++;
+		}
+		argv = malloc(sizeof(*argv) * count);
+		if (argv == NULL)
+		{
+			print("There is an error", STDOUT_FILENO);
+			exit(1);
+		}
+		token = strtok(str, " ");
+		j = 0;
+		while (token)
+		{
+			argv[j] = NULL;
+			argv[j] = _strdup(token);
+			j++;
+			token = strtok(NULL, " ");
+		}
+		argv[j] = NULL;
+		free(ptr);
+		return (argv);
+	}
 }
 
 /**
@@ -86,8 +108,8 @@ int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
 		token = strtok(lineptr, "\n");
 		argv = input_tokenizer(token);
 		/*check_builtins(argv[0], lineptr);*/
-		/*temp = _path_to_list(&head_path);*/
-		/*head_node = &head_path;*/
+		temp = _path_to_list(&head_path);
+		head_node = &head_path;
 		process_handler(argv, head_path, head_node, temp);
 	}
 	if (lineptr)
@@ -116,7 +138,8 @@ void process_handler(char **argv, node *head_path,
 			found = path_finder(argv[0], &head_path);
 			if (found != 0)
 			{
-				perror("Error");
+			/*	printf("%s: not found\n", argv[0]);*/
+				exit(0);
 			}
 			else
 			{

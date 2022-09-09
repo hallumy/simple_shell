@@ -7,20 +7,21 @@
 
 char *_path_to_list(node **head)
 {
-	int i = 0;
+	int i = 0, cmp = -1;
 	char *token = NULL, *dir = NULL, *temp = NULL;
 	node *new = NULL, *current = NULL, *first = NULL;
 
 	while (environ[i])
 	{
-		temp = _strdup(environ[i]);
+		temp = strdup(environ[i]);
 		token = strtok(temp, "=");
-		if (_strcmp(token, "PATH") != 0)
+		cmp = strcmp(token, "PATH");
+		if (cmp != 0)
 		{
 			free(temp);
 			i++;
 		}
-		if (_strcmp(token, "PATH") == 0)
+		else
 		{
 			token = strtok(NULL, "=");
 			break;
@@ -148,7 +149,7 @@ void path_handler(char **argv, node **head_path)
 	{
 		if (execve(argv[0], argv, environ) == -1)
 		{
-			perror("Error");
+			printf("%s: not found\n", argv[0]);
 		}
 	}
 	else

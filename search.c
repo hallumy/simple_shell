@@ -9,6 +9,7 @@
 
 int search(char *filename, char *dirname)
 {
+	int cmp = -1;
 	DIR *dirp;
 	struct dirent *ptr;
 
@@ -16,21 +17,32 @@ int search(char *filename, char *dirname)
 	dirp = opendir(dirname);
 	if (dirp == NULL)
 	{
-		perror("Error");
+		perror("Error ctrl d");
 		return (-1);
 	}
 	while ((ptr = readdir(dirp)) != NULL)
 	{
 		if (ptr->d_type == DT_REG)
 		{
-			if (_strcmp(filename, ptr->d_name) == 0)
+			cmp = strcmp(filename, ptr->d_name);
+			if (cmp == 0)
 				return (0);
 		}
 	}
 	if (errno != 0)
 	{
-		perror("Error");
+		perror("Error ctrl c");
 		return (-1);
 	}
 	return (-1);
 }
+/*int main()
+{
+	char *name = "      ";
+	char *dir = ".";
+	int i;
+
+	i = search(name, dir);
+	printf("The value of i is %d\n", i);
+	return (0);
+}*/
