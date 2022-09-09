@@ -37,7 +37,7 @@ char **input_tokenizer(char *str)
 	char *ptr = NULL;
 	char **argv = NULL;
 
-	ptr = strdup(str);
+	ptr = _strdup(str);
 	token = strtok(ptr, " ");
 	while (token)
 	{
@@ -69,7 +69,7 @@ char **input_tokenizer(char *str)
  * @av: argument vector
  * Return: Always (0) on success
  */
-int main(int ac, char **av)
+int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
 {
 	ssize_t read = 0;
 	char *lineptr = NULL, **argv = NULL, *token = NULL, *temp = NULL;

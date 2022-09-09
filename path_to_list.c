@@ -13,14 +13,14 @@ char *_path_to_list(node **head)
 
 	while (environ[i])
 	{
-		temp = strdup(environ[i]);
+		temp = _strdup(environ[i]);
 		token = strtok(temp, "=");
-		if (strcmp(token, "PATH") != 0)
+		if (_strcmp(token, "PATH") != 0)
 		{
 			free(temp);
 			i++;
 		}
-		if (strcmp(token, "PATH") == 0)
+		if (_strcmp(token, "PATH") == 0)
 		{
 			token = strtok(NULL, "=");
 			break;
@@ -129,7 +129,7 @@ void path_handler(char **argv, node **head_path)
 	int i = 0, j = 0, wstatus;
 	pid_t path_pid;
 
-	list = strdup(argv[0]);
+	list = _strdup(argv[0]);
 	while ((*head_path)->dirname[i])
 	{
 		argv[0][i] = (*head_path)->dirname[i];

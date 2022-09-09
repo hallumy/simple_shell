@@ -27,7 +27,7 @@ void check_builtins(char *str, char *lineptr)
 
 	while (arrbuiltin[i].name != NULL)
 	{
-		if (strcmp(str, arrbuiltin[i].name) == 0)
+		if (_strcmp(str, arrbuiltin[i].name) == 0)
 		{
 			arrbuiltin[i].func(lineptr);
 		}
