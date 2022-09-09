@@ -11,6 +11,8 @@
 #include <dirent.h>
 #include <errno.h>
 #include <signal.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 /**
  * struct node - Node for a linked list
  * @dirname: name of PATH entry
@@ -46,9 +48,14 @@ node *_path_to_list(char **);
 void path_handler(char **argv, node *head_path);
 void free_pathlist(node **, char *);
 void free_list(int n, ...);
-void process_handler(char **argv/*, node *head_path, node **head_node, char **/);
-void check_builtins(char *str, char *);
+void process_handler(char **argv, node **, char *, int mode, ...);
+int check_builtins(char *str);
 void exits(char *);
 int _strcmp(char *s1, char *s2);
 void non_interactive(char **av);
+int check_command(char **);
+node *check_path(char **argv, node *);
+void command_handler(char **argv);
+void call_builtins(char *str, char *);
+
 #endif
