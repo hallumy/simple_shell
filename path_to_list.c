@@ -5,7 +5,7 @@
  * Return: node pointer
  */
 
-node *_path_to_list(char **temp)
+char *_path_value(char **temp)
 {
 	int i = 0, cmp = -1, p = 0;
 	char *token = NULL, *dir = NULL;
@@ -29,6 +29,21 @@ node *_path_to_list(char **temp)
 			break;
 		}
 	}
+	return (token);
+}
+node *build_list(char *path)
+{
+	node *head = NULL;
+	char *token = NULL, *temp = NULL;
+
+	temp = strdup(path);
+	token = strtok(temp, ":");
+	head = malloc(sizeof(node));
+	if (head == NULL)
+	{
+
+
+
 	first = malloc(sizeof(node));
 	p++;
 	if (first == NULL)
