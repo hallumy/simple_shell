@@ -5,20 +5,22 @@
  * Return: node pointer
  */
 
-char *_path_to_list(node **head)
+node *_path_to_list(char **temp)
 {
-	int i = 0, cmp = -1;
-	char *token = NULL, *dir = NULL, *temp = NULL;
+	int i = 0, cmp = -1, p = 0;
+	char *token = NULL, *dir = NULL;
 	node *new = NULL, *current = NULL, *first = NULL;
 
 	while (environ[i])
 	{
-		temp = strdup(environ[i]);
-		token = strtok(temp, "=");
+		*temp = strdup(environ[i]);
+		p++;
+		token = strtok(*temp, "=");
 		cmp = strcmp(token, "PATH");
 		if (cmp != 0)
 		{
-			free(temp);
+			free(*temp);
+			p--;
 			i++;
 		}
 		else
@@ -28,6 +30,7 @@ char *_path_to_list(node **head)
 		}
 	}
 	first = malloc(sizeof(node));
+	p++;
 	if (first == NULL)
 	{
 		perror("Error");
@@ -42,12 +45,15 @@ char *_path_to_list(node **head)
 		while (current->next)
 			current = current->next;
 		new = new_node(dir);
+		p++;
 		if (new == NULL)
+		{
+			p--;
 			break;
+		}
 		current->next = new;
 	}
-	*head = first;
-	return (temp);
+	return (first);
 }
 /**
  * new_node - create a new node
@@ -81,20 +87,18 @@ node *new_node(char *dir)
  * @head: Linked list of directories in PATH
  * Return: 0 on Success -1 failure
  */
-int path_finder(char *file, node **head)
+node *path_finder(char *file, int *found, node *head)
 {
-	int found = 1;
-
-	while ((*head)->next)
+	while (head->next)
 	{
-		found = search(file, (*head)->dirname);
-		if (found == 0)
+		*found = search(file, head->dirname);
+		if (*found == 0)
 		{
 			break;
 		}
-		(*head) = (*head)->next;
+		head = head->next;
 	}
-	return (found);
+	return (head);
 }
 /**
  * free_pathlist - frees the linked list containing PATH directories
@@ -105,6 +109,7 @@ int path_finder(char *file, node **head)
 void free_pathlist(node **head, char *tmp)
 {
 	node *current = NULL;
+	int p = 0;
 
 	if (head == NULL || *head == NULL)
 		return;
@@ -112,11 +117,14 @@ void free_pathlist(node **head, char *tmp)
 	{
 		current = (*head)->next;
 		free(*head);
+		p++;
 		*head = current;
 	}
 	free(*head);
+	p++;
 	*head = NULL;
 	free(tmp);
+	p++;
 }
 /**
  * path_handler - Executes commands in PATH
@@ -124,18 +132,18 @@ void free_pathlist(node **head, char *tmp)
  * @head_path: address of the linked list containing path directories
  * Return: Nothing
  */
-void path_handler(char **argv, node **head_path)
+void path_handler(char **argv, node *head_path)
 {
 	char *list = NULL;
-	int i = 0, j = 0, wstatus;
+	int i = 0, j = 0, l = 0, wstatus;
 	pid_t path_pid;
 
 	list = _strdup(argv[0]);
-	while ((*head_path)->dirname[i])
+	l++;
+	while (head_path->dirname[i])
 	{
-		argv[0][i] = (*head_path)->dirname[i];
+		argv[0][i] = head_path->dirname[i];
 		i++;
-
 	}
 		argv[0][i++] = '/';
 	while (list[j])
@@ -156,5 +164,6 @@ void path_handler(char **argv, node **head_path)
 	{
 		wait(&wstatus);
 		free(list);
+		l--;
 	}
 }

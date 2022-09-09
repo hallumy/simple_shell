@@ -26,14 +26,19 @@ int search(char *filename, char *dirname)
 		{
 			cmp = strcmp(filename, ptr->d_name);
 			if (cmp == 0)
+			{
+				closedir(dirp);
 				return (0);
+			}
 		}
 	}
 	if (errno != 0)
 	{
+		closedir(dirp);
 		perror("Error ctrl c");
 		return (-1);
 	}
+	closedir(dirp);
 	return (-1);
 }
 /*int main()
