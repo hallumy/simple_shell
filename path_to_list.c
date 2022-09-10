@@ -1,184 +1,132 @@
 #include "shell.h"
 /**
- * _path_to_list - Builds a linked list of path directories
- * @head: head of the newly built linked list
+ * _path_value - Builds a linked list of path directories
+ * @temp: name of file in path
  * Return: node pointer
  */
-
-char *_path_value(char **temp)
+char *_path_value(const char *name)
 {
-	int i = 0, cmp = -1, p = 0;
-	char *token = NULL, *dir = NULL;
-	node *new = NULL, *current = NULL, *first = NULL;
+	int i, j;
+	char *value;
 
-	while (environ[i])
+	if (!name)
+		return (NULL);
+	for (i = 0; environ[i]; i++)
 	{
-		*temp = strdup(environ[i]);
-		p++;
-		token = strtok(*temp, "=");
-		cmp = strcmp(token, "PATH");
-		if (cmp != 0)
+		j = 0;
+		if (name[j] == environ[i][j])
 		{
-			free(*temp);
-			p--;
-			i++;
-		}
-		else
-		{
-			token = strtok(NULL, "=");
-			break;
+			while (name[j])
+			{
+				if (name[j] != environ[i][j])
+					break;
+
+				j++;
+			}
+			if (name[j] == '\0')
+			{
+				value = (environ[i] + j + 1);
+				return (value);
+			}
 		}
 	}
-	return (token);
+	return (0);
 }
 node *build_list(char *path)
 {
-	node *head = NULL;
-	char *token = NULL, *temp = NULL;
+	node *head = '\0';
+	char *token;
+	char *cpath = _strdup(path);
 
-	temp = strdup(path);
-	token = strtok(temp, ":");
-	head = malloc(sizeof(node));
-	if (head == NULL)
+	token = strtok(cpath, ":");
+	while (token)
 	{
-
-
-
-	first = malloc(sizeof(node));
-	p++;
-	if (first == NULL)
-	{
-		perror("Error");
-		exit(1);
+		head = add_node_end(&head, token);
+		token = strtok(NULL, ":");
 	}
-	dir = strtok(token, ":");
-	first->dirname = dir;
-	first->next = NULL;
-	current = first;
-	while (dir)
-	{
-		while (current->next)
-			current = current->next;
-		new = new_node(dir);
-		p++;
-		if (new == NULL)
-		{
-			p--;
-			break;
-		}
-		current->next = new;
-	}
-	return (first);
+
+	return (head);
 }
 /**
- * new_node - create a new node
- * @dir: name of directory
- * Return: newly created node
+ * path_name - build pathname in PATH
+ * @filename: command name
+ * @head_path: address of the linked list containing path directories
+ * Return: Nothing
  */
-node *new_node(char *dir)
+char *path_name(char *filename, node *head)
 {
-	node *new = NULL;
+	struct stat buf;
+	char *str;
+
+	node *current = head;
+
+	while (current)
+	{
+		str = _strncat(current->dirname,"/",filename);
+		if (stat(str, &buf) == 0)
+		{
+			return (str);
+		}
+		free(str);
+		current = current->next;
+	}
+	return (NULL);
+}
+
+/**
+ * add_node_end - function that adds a new node at the end of a
+ * node list
+ * @head: a pointer to a pointer to a list_t type
+ * @str: a string to be included in the newly created node
+ * Return: address of a head node or NULL on failure
+ */
+node *add_node_end(node **head, const char *str)
+{
+	node *new = NULL, *current = NULL;
 
 	new = malloc(sizeof(node));
 	if (new == NULL)
 	{
-		perror("Error");
-		exit(1);
-	}
-	dir = strtok(NULL, ":");
-	if (dir == NULL)
-	{
-		free(new);
 		return (NULL);
 	}
-	new->dirname = dir;
+	new->dirname = strdup(str);
 	new->next = NULL;
-	return (new);
-}
-
-/**
- * path_finder - Searches for a file in the PATH directories
- * @file: The file to be searched
- * @head: Linked list of directories in PATH
- * Return: 0 on Success -1 failure
- */
-node *path_finder(char *file, int *found, node *head)
-{
-	while (head->next)
+	if (*head == NULL)
 	{
-		*found = search(file, head->dirname);
-		if (*found == 0)
-		{
-			break;
-		}
-		head = head->next;
-	}
-	return (head);
-}
-/**
- * free_pathlist - frees the linked list containing PATH directories
- * @head: Address to the head of this list
- * @tmp: A pointer to be freed
- * Return: Nothing
- */
-void free_pathlist(node **head, char *tmp)
-{
-	node *current = NULL;
-	int p = 0;
-
-	if (head == NULL || *head == NULL)
-		return;
-	while ((*head)->next)
-	{
-		current = (*head)->next;
-		free(*head);
-		p++;
-		*head = current;
-	}
-	free(*head);
-	p++;
-	*head = NULL;
-	free(tmp);
-	p++;
-}
-/**
- * path_handler - Executes commands in PATH
- * @argv: argument vector passed to execve
- * @head_path: address of the linked list containing path directories
- * Return: Nothing
- */
-void path_handler(char **argv, node *head_path)
-{
-	char *list = NULL;
-	int i = 0, j = 0, l = 0, wstatus;
-	pid_t path_pid;
-
-	list = _strdup(argv[0]);
-	l++;
-	while (head_path->dirname[i])
-	{
-		argv[0][i] = head_path->dirname[i];
-		i++;
-	}
-		argv[0][i++] = '/';
-	while (list[j])
-	{
-		argv[0][i] = list[j];
-		i++;
-		j++;
-	}
-	path_pid = fork();
-	if (path_pid == 0)
-	{
-		if (execve(argv[0], argv, environ) == -1)
-		{
-			printf("%s: not found\n", argv[0]);
-		}
+		*head = new;
+		current = *head;
 	}
 	else
 	{
-		wait(&wstatus);
-		free(list);
-		l--;
+		current = *head;
+		while (current->next != NULL)
+		{
+			current = current->next;
+		}
+		current->next = new;
+	}
+	return (*head);
+}
+/**
+ * free_list - function that frees a list_int
+ * list
+ *
+ * @head:a pointer to  a pointer pointing at the start of the list
+ *
+ * Return: Nothing
+ */
+void free_list(node **head)
+{
+	int j = 0;
+	node *current;
+
+	if (head == NULL)
+		return;
+	while (*head != NULL)
+	{
+		current = (*head)->next;
+		free(*head);
+		j++;
+		*head = current;
 	}
 }
