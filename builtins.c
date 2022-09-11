@@ -5,14 +5,9 @@
  * @lineptr: frees lineptr from main shell
  * Return: Nothing
  */
-void exits(char **argv)
+void exits(char *lineptr)
 {
-	int i = 0;
-
-	if (argv[i])
-		free(argv[i++]);
-	if (argv)
-		free(argv);
+	free(lineptr);
 	exit(0);
 }
 
@@ -22,7 +17,7 @@ void exits(char **argv)
  * @lineptr: frees lineptr from main shell
  * Return: Nothing
  */
-void (*check_builtins(char **argv))(char **argv)
+int check_builtins(char *str)
 {
 	builtin arrbuiltin[] = {
 		{"exit", exits},
@@ -32,11 +27,35 @@ void (*check_builtins(char **argv))(char **argv)
 
 	while (arrbuiltin[i].name != NULL)
 	{
-		if (_strcmp(argv[0], arrbuiltin[i].name) == 0)
+		if (_strcmp(str, arrbuiltin[i].name) == 0)
 		{
-			return (arrbuiltin[i].func);
+			/*arrbuiltin[i].func(lineptr);*/
+			return (0);
 		}
 		i++;
 	}
-	return (0);
+	return (-1);
+}
+/**
+ * call_builtins - executes a builtin command
+ * @str: Command input by user
+ * @lineptr: frees lineptr from main shell
+ * Return: Nothing
+ */
+void call_builtins(char *str, char *lineptr)
+{
+	builtin arrbuiltin[] = {
+		{"exit", exits},
+		{NULL, NULL}
+	};
+	int i = 0;
+
+	while (arrbuiltin[i].name != NULL)
+	{
+		if (_strcmp(str, arrbuiltin[i].name) == 0)
+		{
+			arrbuiltin[i].func(lineptr);
+		}
+		i++;
+	}
 }

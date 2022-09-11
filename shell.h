@@ -33,22 +33,29 @@ typedef struct node
 typedef struct builtin
 {
 	char *name;
-	void (*func)(char **);
+	void (*func)(char *);
 } builtin;
 extern char **environ;
 
-char *_path_value(const char *);
-node *build_list(char *);
-char *path_name(char *, node *);
-node *add_node_end(node **, const char *);
-void free_list(node **head);
+node *new_node(char *);
 char **input_tokenizer(char *str);
 int print(char *format, int fd);
 int _strlen(char *str);
 char *_strdup(char *str);
-void (*check_builtins(char **))(char **);
-void exits(char **);
+node *path_finder(char *file, int *, node *head);
+int search(char *filename, char *dirname);
+node *_path_to_list(char **);
+void path_handler(char **argv, node *head_path);
+void free_pathlist(node **, char *);
+void free_list(int n, ...);
+void process_handler(char **argv, node **, char *, int mode, ...);
+int check_builtins(char *str);
+void exits(char *);
 int _strcmp(char *s1, char *s2);
-void execute(char **argv);
-char *_strncat(char *name, char *sep, char *value);
+void non_interactive(char **av);
+int check_command(char **);
+node *check_path(char **argv, node *);
+void command_handler(char **argv);
+void call_builtins(char *str, char *);
+
 #endif
