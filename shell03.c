@@ -102,11 +102,10 @@ char **input_tokenizer(char *str)
 int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
 {
 	ssize_t read = 0;
-	char *lineptr = NULL, **argv = NULL, *token = NULL, *temp = NULL;
+	char *lineptr = NULL, **argv = NULL, *token = NULL;
 	size_t n = 0;
-	int j = 0, i = 0, mode = -1;
-	node *found_node = NULL, **head_node = NULL, *head_path = NULL;
-	
+	int j = 0;
+
 	while (1)
 	{
 		signal(SIGINT,sig_handler);
@@ -118,33 +117,7 @@ int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
 		token = strtok(lineptr, "\n");
 		argv = input_tokenizer(token);
 		/*check_builtins(argv[0], lineptr);*/
-		/*we check absolute path, chec bulit in then check path then we call process handler*/
-		head_path = _path_to_list(&temp);
-		head_node = &head_path;
-		found_node = check_path(argv, head_path);
-		if (check_command(argv) == 0)
-		{
-			mode = 0;
-			process_handler(argv, head_node, temp, mode);
-		}
-		else if (check_builtins(argv[0]) == 0)
-		{
-			mode = 1;
-			process_handler(argv, head_node, temp, mode, lineptr);
-		}
-		else if (found_node != NULL)
-		{
-			mode = 2;
-			process_handler(argv, head_node, temp, mode, found_node);
-		}
-		else
-		{
-			while (argv[0][i])
-			{
-				write(STDERR_FILENO, &(argv[0][i++]), 1);
-			}
-			print(": Not found", STDERR_FILENO);
-		}
+		process_handler(argv);
 	}
 	if (lineptr)
 	{
@@ -154,19 +127,6 @@ int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
 	return (0);
 }
 /**
- * command_handler - Executes absolute path commands
- * @argv: command together with arguments
- * Return: Nothing
- */
-void command_handler(char **argv)
-{
-
-	if (execve(argv[0], argv, environ) == -1)
-	{                                         
-		exit(1);   
-	}
-}
-/**
  * process_handler - Handles processes in the shell
  * @argv: Argument vector for execve
  * @head_path: linked list containing PATH directories
@@ -174,46 +134,43 @@ void command_handler(char **argv)
  * @temp: address to free in linked list built
  * Return: Nothing
  */
-void process_handler(char **argv, node **head_node, char *temp, int mode,  ...)
+void process_handler(char **argv)
 {
-	int i = 0, wstatus = 0, j = 0;
+	int i = 0, wstatus = 0, found = 1, j = 0;
 	pid_t ppid;
-	node /* *head_path = NULL, **head_node = NULL,*/ *found_node = NULL;
-	char *lineptr = NULL;
-	va_list ap;
+	node *head_path = NULL, **head_node = NULL, *found_node = NULL;
+	char *temp = NULL;
 
-/*	head_path = _path_to_list(&temp);
-	head_node = &head_path;*/
-	printf("mode before is %d\n", mode);
+	head_path = _path_to_list(&temp);
+	head_node = &head_path;
 	ppid = fork();
-	printf("mode after is %d\n", mode);
 	if (ppid == 0)
 	{
-		if (mode == 0)
+		if (execve(argv[0], argv, environ) == -1)
 		{
-			command_handler(argv);
-		}
-		else if (mode == 1)
-		{
-			va_start(ap, mode);
-			lineptr = va_arg(ap, char *);
-			call_builtins(argv[0], lineptr);
-			va_end(ap);
-		}
-		else if (mode == 2)
-		{
-			va_start(ap, mode);
-                       	found_node = va_arg(ap, node *);
-	           	path_handler(argv, found_node);
-			va_end(ap);
+			exit(1);
 		}
 	}
-	else
-
+	else 
 	{
 		wait(&wstatus);
+		found_node  = path_finder(argv[0], &found, head_path);
+		if (found == 0)
+		{
+			path_handler(argv, found_node);
+		}
+		else
+		{
+			if (WIFEXITED(wstatus) && WEXITSTATUS(wstatus) != 0)
+			{
+				while (argv[0][i])
+				{
+					write(STDERR_FILENO, &(argv[0][i++]), 1);
+				}
+				print(": Not found", STDERR_FILENO);
+			}
+		}
 		i = 0;
-
 		while (argv[i] != NULL)
 		{
 			if (argv[i])
