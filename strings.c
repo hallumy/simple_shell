@@ -27,7 +27,7 @@ char *_strdup(char *str)
 		}
 		else
 		{
-			memset(str1, 0,n);
+			memset(str1, 0, n);
 			for (i = 0; i < size; i++)
 			{
 				str1[i] = str[i];

@@ -37,6 +37,10 @@ char **input_tokenizer(char *str)
 	char *ptr = NULL;
 	char **argv = NULL;
 
+	if (str == NULL)
+	{
+		return NULL;
+	}
 	while (str[j])
 	{
 		if (str[j] != ' ')
@@ -45,16 +49,6 @@ char **input_tokenizer(char *str)
 	}
 	if (j == _strlen(str))
 	{
-		argv = malloc(sizeof(*argv) * (count + 1));
-		k++;
-		if (argv == NULL)
-		{
-			print("There is an error", STDOUT_FILENO);
-			exit(1);
-		}
-		argv[0] = _strdup(str);
-		k++;
-		argv[1] = NULL;
 		return (argv);
 	}
 	else
@@ -108,7 +102,7 @@ int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
 
 	while (1)
 	{
-		signal(SIGINT,sig_handler);
+		/*signal(SIGINT,sig_handler);*/
 		print("", STDOUT_FILENO);
 		read = getline(&lineptr, &n, stdin);
 		j++;
@@ -116,6 +110,10 @@ int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
 			break;
 		token = strtok(lineptr, "\n");
 		argv = input_tokenizer(token);
+		if (argv == NULL)
+		{
+			continue;
+		}
 		/*check_builtins(argv[0], lineptr);*/
 		process_handler(argv);
 	}
@@ -167,7 +165,7 @@ void process_handler(char **argv)
 				{
 					write(STDERR_FILENO, &(argv[0][i++]), 1);
 				}
-				print(": Not found", STDERR_FILENO);
+				print(": Not found\n", STDERR_FILENO);
 			}
 		}
 		i = 0;
