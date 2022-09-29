@@ -49,6 +49,7 @@ void free_pathlist(node **, char *);
 void process_handler(char **argv, ...);
 int check_apath(char *str);
 void (*check_builtins(char *))(char **str, ...);
+void free_argv(char **argv);
 void exits(char **, ...);
 int _strcmp(char *s1, char *s2);
 void non_interactive(char **av);

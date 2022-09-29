@@ -11,11 +11,12 @@ void exits(char **str, ...)
 	va_start(ap, str);
 	free(va_arg(ap, char *));
 	va_end(ap);
-	if (str != NULL)
+/*	if (str != NULL)
 	{
 		free(str[0]);
 		free(str);
-	}	
+	}*/
+	free_argv(str);	
 	exit(0);
 }
 

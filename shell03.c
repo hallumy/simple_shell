@@ -98,7 +98,7 @@ int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
 	ssize_t read = 0;
 	char *lineptr = NULL, **argv = NULL, *token = NULL, *temp = NULL;
 	size_t n = 0;
-	int j = 0, found = -1, i = 0;
+	int j = 0, found = -1, status = 0;
 	node *head_path = NULL, **head_node = NULL, *found_node = NULL;
 	void (*built)(char **, ...);
 
@@ -140,10 +140,12 @@ int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
                                         write(STDERR_FILENO, &(argv[0][j++]), 1);
                                 }
 			print(": Not found\n", STDERR_FILENO);
+			status = 127;
 		}
 		free_pathlist(head_node, temp);
-		i = 0;
-        	while (argv[i] != NULL)
+		free_argv(argv);
+		/*i = 0;
+		while (argv[i] != NULL)
         	{
                 	if (argv[i])
                 	{
@@ -155,7 +157,8 @@ int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
         	{
                 	free(argv);
                 	j++;
-        	}	
+        	}	*/
+
 
 	}
 	if (lineptr)
@@ -167,22 +170,8 @@ int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
 	{
 		free_pathlist(head_node, temp);
 	}
+	return (status);
 
-/*	i = 0;
-	while (argv[i] != NULL)
-	{
-		if (argv[i])
-		{
-			free(argv[i++]);
-			j++;
-		}
-	}
-	if (argv)
-	{
-		free(argv);
-		j++;
-	}*/
-	return (0);
 }
 
 		
@@ -229,20 +218,7 @@ void process_handler(char **argv, ...)
 			}*/
 		}
 		va_end(ap);
-	/*	i = 0;
-		while (argv[i] != NULL)
-		{
-			if (argv[i])
-			{
-				free(argv[i++]);
-				j++;
-			}
-		}
-		if (argv)
-		{
-			free(argv);
-			j++;
-		}*/
+/*		free_argv(argv);*/
 	}
 }
 /**
