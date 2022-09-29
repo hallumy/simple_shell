@@ -93,7 +93,7 @@ char **input_tokenizer(char *str)
  * @av: argument vector
  * Return: Always (0) on success
  */
-int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
+int main(int ac __attribute__((unused)), char **av)
 {
 	ssize_t read = 0;
 	char *lineptr = NULL, **argv = NULL, *token = NULL, *temp = NULL;
@@ -134,6 +134,12 @@ int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
 		}
 		else
 		{
+			j = 0;
+			while (av[0][j])
+                                {
+                                        write(STDERR_FILENO, &(av[0][j++]), 1);
+                                }
+			print(": ", STDERR_FILENO);
 			j = 0;
 			while (argv[0][j])
                                 {
