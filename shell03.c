@@ -93,7 +93,7 @@ char **input_tokenizer(char *str)
  * @av: argument vector
  * Return: Always (0) on success
  */
-int main(int ac __attribute__((unused)), char **av)
+int main(int ac, char **av)
 {
 	ssize_t read = 0;
 	char *lineptr = NULL, **argv = NULL, *token = NULL, *temp = NULL;
@@ -140,12 +140,14 @@ int main(int ac __attribute__((unused)), char **av)
                                         write(STDERR_FILENO, &(av[0][j++]), 1);
                                 }
 			print(": ", STDERR_FILENO);
+			_putchar(ac + '0');
+			print(":", STDERR_FILENO);
 			j = 0;
 			while (argv[0][j])
                                 {
                                         write(STDERR_FILENO, &(argv[0][j++]), 1);
                                 }
-			print(": Not found\n", STDERR_FILENO);
+			print(":not found\n", STDERR_FILENO);
 			status = 127;
 		}
 		free_pathlist(head_node, temp);
