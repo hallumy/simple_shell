@@ -11,6 +11,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <signal.h>
+#include <sys/stat.h>
 /**
  * struct node - Node for a linked list
  * @dirname: name of PATH entry
@@ -31,7 +32,7 @@ typedef struct node
 typedef struct builtin
 {
 	char *name;
-	void (*func)(char *);
+	void (*func)(char **, ...);
 } builtin;
 extern char **environ;
 
@@ -45,10 +46,12 @@ int search(char *filename, char *dirname);
 node *_path_to_list(char **);
 void path_handler(char **argv, node *head_path);
 void free_pathlist(node **, char *);
-void free_list(int n, ...);
-void process_handler(char **argv/*, node *head_path, node **head_node, char **/);
-void check_builtins(char *str, char *);
-void exits(char *);
+void process_handler(char **argv, ...);
+int check_apath(char *str);
+void (*check_builtins(char *))(char **str, ...);
+void free_argv(char **argv);
+void exits(char **, ...);
 int _strcmp(char *s1, char *s2);
 void non_interactive(char **av);
+int _putchar(char c);
 #endif

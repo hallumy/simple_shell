@@ -37,6 +37,10 @@ char **input_tokenizer(char *str)
 	char *ptr = NULL;
 	char **argv = NULL;
 
+	if (str == NULL)
+	{
+		return NULL;
+	}
 	while (str[j])
 	{
 		if (str[j] != ' ')
@@ -45,16 +49,6 @@ char **input_tokenizer(char *str)
 	}
 	if (j == _strlen(str))
 	{
-		argv = malloc(sizeof(*argv) * (count + 1));
-		k++;
-		if (argv == NULL)
-		{
-			print("There is an error", STDOUT_FILENO);
-			exit(1);
-		}
-		argv[0] = _strdup(str);
-		k++;
-		argv[1] = NULL;
 		return (argv);
 	}
 	else
@@ -99,12 +93,18 @@ char **input_tokenizer(char *str)
  * @av: argument vector
  * Return: Always (0) on success
  */
-int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
+int main(int ac, char **av)
 {
 	ssize_t read = 0;
-	char *lineptr = NULL, **argv = NULL, *token = NULL;
+	char *lineptr = NULL, **argv = NULL, *token = NULL, *temp = NULL;
 	size_t n = 0;
-	int j = 0;
+	int j = 0, found = -1, status = 0;
+	node *head_path = NULL, **head_node = NULL, *found_node = NULL;
+	void (*built)(char **, ...);
+
+/*	head_path = _path_to_list(&temp);
+        head_node = &head_path;*/
+
 
 	while (1)
 	{
@@ -116,16 +116,73 @@ int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
 			break;
 		token = strtok(lineptr, "\n");
 		argv = input_tokenizer(token);
-		/*check_builtins(argv[0], lineptr);*/
-		process_handler(argv);
+		if (argv == NULL)
+		{
+			continue;
+		}
+		built = check_builtins(argv[0]);
+		if (built)
+		{
+			built(argv, lineptr);
+		}
+		head_path = _path_to_list(&temp);
+                head_node = &head_path;
+		found_node = path_finder(argv[0], &found, head_path);
+		if (found == 0 || check_apath(argv[0]))
+		{
+			process_handler(argv, found, found_node);
+		}
+		else
+		{
+			j = 0;
+			while (av[0][j])
+                                {
+                                        write(STDERR_FILENO, &(av[0][j++]), 1);
+                                }
+			print(": ", STDERR_FILENO);
+			_putchar(ac + '0');
+			print(": ", STDERR_FILENO);
+			j = 0;
+			while (argv[0][j])
+                                {
+                                        write(STDERR_FILENO, &(argv[0][j++]), 1);
+                                }
+			print(": not found\n", STDERR_FILENO);
+			status = 127;
+		}
+		free_pathlist(head_node, temp);
+		free_argv(argv);
+		/*i = 0;
+		while (argv[i] != NULL)
+        	{
+                	if (argv[i])
+                	{
+                        	free(argv[i++]);
+                        	j++;
+                	}
+        	}
+        	if (argv)
+        	{
+                	free(argv);
+                	j++;
+        	}	*/
+
+
 	}
 	if (lineptr)
 	{
 		free(lineptr);
 		j--;
 	}
-	return (0);
+	if (head_node)
+	{
+		free_pathlist(head_node, temp);
+	}
+	return (status);
+
 }
+
+		
 /**
  * process_handler - Handles processes in the shell
  * @argv: Argument vector for execve
@@ -134,15 +191,12 @@ int main(int ac __attribute__((unused)), char **av __attribute__((unused)))
  * @temp: address to free in linked list built
  * Return: Nothing
  */
-void process_handler(char **argv)
+void process_handler(char **argv, ...)
 {
-	int i = 0, wstatus = 0, found = 1, j = 0;
+	int/* i = 0, j = 0,*/ wstatus = 0, found = 1;
 	pid_t ppid;
-	node *head_path = NULL, **head_node = NULL, *found_node = NULL;
-	char *temp = NULL;
+	va_list ap;
 
-	head_path = _path_to_list(&temp);
-	head_node = &head_path;
 	ppid = fork();
 	if (ppid == 0)
 	{
@@ -154,37 +208,25 @@ void process_handler(char **argv)
 	else 
 	{
 		wait(&wstatus);
-		found_node  = path_finder(argv[0], &found, head_path);
+		va_start(ap, argv);
+		found = va_arg(ap, int);
 		if (found == 0)
 		{
-			path_handler(argv, found_node);
+			path_handler(argv, va_arg(ap, node *));
 		}
 		else
 		{
-			if (WIFEXITED(wstatus) && WEXITSTATUS(wstatus) != 0)
+		/*	if (WIFEXITED(wstatus) && WEXITSTATUS(wstatus) != 0)
 			{
 				while (argv[0][i])
 				{
 					write(STDERR_FILENO, &(argv[0][i++]), 1);
 				}
-				print(": Not found", STDERR_FILENO);
-			}
+				print(": Not found\n", STDERR_FILENO);
+			}*/
 		}
-		i = 0;
-		while (argv[i] != NULL)
-		{
-			if (argv[i])
-			{
-				free(argv[i++]);
-				j++;
-			}
-		}
-		if (argv)
-		{
-			free(argv);
-			j++;
-		}
-		free_pathlist(head_node, temp);
+		va_end(ap);
+/*		free_argv(argv);*/
 	}
 }
 /**

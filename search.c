@@ -51,3 +51,30 @@ int search(char *filename, char *dirname)
 	printf("The value of i is %d\n", i);
 	return (0);
 }*/
+
+/**
+ * check_apath - Checks if a command is an absolute command path
+ * @str: Command to be checked
+ * Return: 1 on success -1 on failure
+ */
+int check_apath(char *str)
+{
+	int i = 0;
+	struct stat statbuf;
+
+	while(str[i])
+	{
+		if (str[i] == '/')
+			break;
+		i++;
+	}
+	if (i == _strlen(str))
+		return (0);
+	i = stat(str, &statbuf);
+	if (i == 0)
+		return (1);
+	return (0);
+}
+		
+		
+
