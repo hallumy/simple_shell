@@ -75,6 +75,3 @@ int check_apath(char *str)
 		return (1);
 	return (0);
 }
-		
-		
-

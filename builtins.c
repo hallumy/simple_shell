@@ -16,7 +16,7 @@ void exits(char **str, ...)
 		free(str[0]);
 		free(str);
 	}*/
-	free_argv(str);	
+	free_argv(str);
 	exit(0);
 }
 
