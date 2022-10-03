@@ -141,13 +141,13 @@ int main(int ac, char **av)
                                 }
 			print(": ", STDERR_FILENO);
 			_putchar(ac + '0');
-			print(":", STDERR_FILENO);
+			print(": ", STDERR_FILENO);
 			j = 0;
 			while (argv[0][j])
                                 {
                                         write(STDERR_FILENO, &(argv[0][j++]), 1);
                                 }
-			print(":not found\n", STDERR_FILENO);
+			print(": not found\n", STDERR_FILENO);
 			status = 127;
 		}
 		free_pathlist(head_node, temp);
