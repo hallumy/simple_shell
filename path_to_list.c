@@ -89,7 +89,7 @@ node *new_node(char *dir)
  */
 node *path_finder(char *file, int *found, node *head)
 {
-	while (head->next)
+	while (head)
 	{
 		*found = search(file, head->dirname);
 		if (*found == 0)
