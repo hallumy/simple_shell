@@ -50,6 +50,7 @@ char **input_tokenizer(char *str)
 	if (j == _strlen(str))
 	{
 		return (argv);
+		printf("argv is %s\n", argv[0]);
 	}
 	else
 	{
@@ -134,6 +135,7 @@ int main(int ac, char **av)
 		}
 		else
 		{
+
 			j = 0;
 			while (av[0][j])
                                 {
@@ -191,16 +193,15 @@ int main(int ac, char **av)
  * @temp: address to free in linked list built
  * Return: Nothing
  */
-void process_handler(char **argv, ...)
+void process_handler(char **argv, int found, node *found_node)
 {
-	int/* i = 0, j = 0,*/ wstatus = 0, found = 1;
+	int/* i = 0, j = 0,*/ wstatus = 0;
 	pid_t ppid;
-	va_list ap;
 
 	ppid = fork();
 	if (ppid == 0)
 	{
-		if (execve(argv[0], argv, environ) == -1)
+		if (found == 0 || execve(argv[0], argv, environ) == -1)
 		{
 			exit(1);
 		}
@@ -208,11 +209,9 @@ void process_handler(char **argv, ...)
 	else 
 	{
 		wait(&wstatus);
-		va_start(ap, argv);
-		found = va_arg(ap, int);
 		if (found == 0)
 		{
-			path_handler(argv, va_arg(ap, node *));
+			path_handler(argv, found_node);
 		}
 		else
 		{
@@ -225,7 +224,6 @@ void process_handler(char **argv, ...)
 				print(": Not found\n", STDERR_FILENO);
 			}*/
 		}
-		va_end(ap);
 /*		free_argv(argv);*/
 	}
 }
