@@ -129,9 +129,14 @@ int main(int ac, char **av)
 		head_path = _path_to_list(&temp);
                 head_node = &head_path;
 		found_node = path_finder(argv[0], &found, head_path);
-		if (found == 0 || check_apath(argv[0]))
+		if (found == 0)
+		{	
+			path_handler(argv, found_node);
+		
+		}
+		else if (check_apath(argv[0]))
 		{
-			process_handler(argv, found, found_node);
+			process_handler(argv);
 		}
 		else
 		{
@@ -188,12 +193,9 @@ int main(int ac, char **av)
 /**
  * process_handler - Handles processes in the shell
  * @argv: Argument vector for execve
- * @head_path: linked list containing PATH directories
- * @head_node: address of head_path head node
- * @temp: address to free in linked list built
  * Return: Nothing
  */
-void process_handler(char **argv, int found, node *found_node)
+void process_handler(char **argv)
 {
 	int/* i = 0, j = 0,*/ wstatus = 0;
 	pid_t ppid;
@@ -201,7 +203,7 @@ void process_handler(char **argv, int found, node *found_node)
 	ppid = fork();
 	if (ppid == 0)
 	{
-		if (found == 0 || execve(argv[0], argv, environ) == -1)
+		if (execve(argv[0], argv, environ) == -1)
 		{
 			exit(1);
 		}
@@ -209,52 +211,5 @@ void process_handler(char **argv, int found, node *found_node)
 	else 
 	{
 		wait(&wstatus);
-		if (found == 0)
-		{
-			path_handler(argv, found_node);
-		}
-		else
-		{
-		/*	if (WIFEXITED(wstatus) && WEXITSTATUS(wstatus) != 0)
-			{
-				while (argv[0][i])
-				{
-					write(STDERR_FILENO, &(argv[0][i++]), 1);
-				}
-				print(": Not found\n", STDERR_FILENO);
-			}*/
-		}
-/*		free_argv(argv);*/
-	}
-}
-/**
- * non_interactive - Handles shell in non interactive
- * @av: Argument vector for execve
- * Return: Nothing
- */
-void non_interactive(char **av)
-{
-	int wstatus, i = 0;
-	pid_t child_pid;
-
-	child_pid = fork();
-	if (child_pid == 0)
-	{
-		if(execve(av[0], av, environ) == -1)
-		{
-			perror("Error");
-		}
-	}
-	else
-	{
-		wait(&wstatus);
-		i = 0;
-		while (av[i] != NULL)
-		{
-			if (av[i])
-				free(av[i++]);
-		}
-		if (av)
-			free(av);
 	}
 }

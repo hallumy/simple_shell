@@ -46,7 +46,7 @@ int search(char *filename, char *dirname);
 node *_path_to_list(char **);
 void path_handler(char **argv, node *head_path);
 void free_pathlist(node **, char *);
-void process_handler(char **argv, int, node*);
+void process_handler(char **argv);
 int check_apath(char *str);
 void (*check_builtins(char *))(char **str, ...);
 void free_argv(char **argv);
