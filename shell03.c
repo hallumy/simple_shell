@@ -122,14 +122,14 @@ int main(int ac, char **av)
 			continue;
 		}
 		built = check_builtins(argv[0]);
+		head_path = _path_to_list(&temp);
+                head_node = &head_path;
+		found_node = path_finder(argv[0], &found, head_path);
 		if (built)
 		{
 			built(argv, lineptr);
 		}
-		head_path = _path_to_list(&temp);
-                head_node = &head_path;
-		found_node = path_finder(argv[0], &found, head_path);
-		if (found == 0)
+		else if (found == 0)
 		{	
 			path_handler(argv, found_node);
 		
@@ -140,7 +140,6 @@ int main(int ac, char **av)
 		}
 		else
 		{
-
 			j = 0;
 			while (av[0][j])
                                 {

@@ -1,7 +1,7 @@
 #include "shell.h"
 /**
  * _path_to_list - Builds a linked list of path directories
- * @head: head of the newly built linked list
+ * @temp: we will write the description later
  * Return: node pointer
  */
 
@@ -29,6 +29,8 @@ node *_path_to_list(char **temp)
 			break;
 		}
 	}
+	if (environ[i] == NULL)
+		return (NULL);
 	first = malloc(sizeof(node));
 	p++;
 	if (first == NULL)
@@ -157,7 +159,7 @@ void path_handler(char **argv, node *head_path)
 	{
 		if (execve(argv[0], argv, environ) == -1)
 		{
-			printf("%s: not found\n", argv[0]);
+			exit(1);
 		}
 	}
 	else
