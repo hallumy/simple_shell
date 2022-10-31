@@ -29,7 +29,7 @@ node *_path_to_list(char **temp)
 			break;
 		}
 	}
-	if (environ[i] == NULL)
+	if (environ[i] == NULL || token == NULL)
 		return (NULL);
 	first = malloc(sizeof(node));
 	p++;

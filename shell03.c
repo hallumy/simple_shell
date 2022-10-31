@@ -158,21 +158,6 @@ int main(int ac, char **av)
 		}
 		free_pathlist(head_node, temp);
 		free_argv(argv);
-		/*i = 0;
-		while (argv[i] != NULL)
-        	{
-                	if (argv[i])
-                	{
-                        	free(argv[i++]);
-                        	j++;
-                	}
-        	}
-        	if (argv)
-        	{
-                	free(argv);
-                	j++;
-        	}	*/
-
 
 	}
 	if (lineptr)
